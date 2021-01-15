@@ -14,6 +14,11 @@ class Stack<E> {
         this.elements = arrayOfNulls(initialCapacity)
     }
 
+    constructor(elements: Array<E>) {
+        this.elements = elements as Array<Any?>
+        size += elements.size
+    }
+
     fun push(element: E) {
         if (size == elements.size) {
             val newArray = arrayOfNulls<Any>(size + if (size < minCapacityIncrement / 2)
@@ -26,12 +31,31 @@ class Stack<E> {
         elements[size++] = element
     }
 
+    fun pushAll(newElements: Array<E>) {
+        val newSize = size + newElements.size
+        if (elements.size < newSize) {
+            // New sizing can be of any logic as per requirement
+            val newArray = arrayOfNulls<Any>(newSize + minCapacityIncrement)
+            System.arraycopy(elements, 0, newArray, 0, size)
+            elements = newArray
+        }
+        System.arraycopy(newElements, 0, elements, size, newElements.size)
+        size = newSize
+    }
+
     fun pop(): E {
         if (size == 0) throw StackUnderflowException()
         val index = --size
         val obj = elements[index]
         elements[index] = null
         return obj as E
+    }
+
+    fun pop(count: Int) {
+        if (size == 0 || size < count) throw StackUnderflowException()
+        for (i in 0 until count) {
+            elements[--size] = null
+        }
     }
 
     fun peek() = try {
@@ -61,6 +85,8 @@ class Stack<E> {
 
 class StackUnderflowException : RuntimeException()
 
+inline fun <reified T> stackOf(vararg elements: T) = Stack<T>(elements as Array<T>)
+
 fun main(args: Array<String>) {
     val animals = Stack<String>(10)
     System.out.println("$animals - Empty? -- ${animals.isEmpty()}")
@@ -85,4 +111,51 @@ fun main(args: Array<String>) {
     System.out.println("$animals - Empty? -- ${animals.isEmpty()}")
     animals.pop()
     System.out.println("$animals - Empty? -- ${animals.isEmpty()}")
+
+    println()
+    val languages = Stack(arrayOf("Kotlin", "Java"))
+    println("$languages - Empty? -- ${languages.isEmpty()}")
+    languages.push("C")
+    println("$languages - Empty? -- ${languages.isEmpty()}")
+    languages.pop()
+    println("$languages - Empty? -- ${languages.isEmpty()}")
+    languages.pop()
+    println("$languages - Empty? -- ${languages.isEmpty()}")
+    languages.pop()
+    println("$languages - Empty? -- ${languages.isEmpty()}")
+
+    testPushAll()
+    testPop()
+    testStackOf()
+}
+
+fun testPushAll() {
+    println()
+    println("Testing pushAll")
+    val numbers = Stack<Int>(10)
+    numbers.pushAll(Array<Int>(100) { i -> i })
+    println(numbers)
+    numbers.pop()
+    numbers.pushAll(arrayOf(1, 2, 12, 909))
+    println(numbers)
+}
+
+fun testPop() {
+    println()
+    println("Testing pop count")
+    val numbers = Stack<Int>(10)
+    numbers.pushAll(Array<Int>(100) { i -> i })
+    println(numbers)
+    numbers.pop(20)
+    numbers.pushAll(arrayOf(1, 2, 12, 909))
+    println(numbers)
+}
+
+fun testStackOf() {
+    val languages = stackOf("Kotlin", "Java")
+    println(languages)
+    languages.push("C")
+    println(languages)
+    languages.pop()
+    println(languages)
 }

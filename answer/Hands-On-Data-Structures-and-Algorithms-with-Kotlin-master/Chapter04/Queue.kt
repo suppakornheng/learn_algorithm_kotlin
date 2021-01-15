@@ -14,6 +14,11 @@ class Queue<E> {
         this.elements = arrayOfNulls(initialCapacity)
     }
 
+    constructor(elements: Array<E>) {
+        this.elements = elements as Array<Any?>
+        size += elements.size
+    }
+
     fun enqueue(element: E) {
         if (size == elements.size) {
             val newArray = arrayOfNulls<Any>(size + if (size < minCapacityIncrement / 2)
@@ -26,12 +31,33 @@ class Queue<E> {
         elements[size++] = element
     }
 
+    fun enqueueAll(newElements: Array<E>) {
+        val newSize = size + newElements.size
+        if (elements.size < newSize) {
+            // New sizing can be of any logic as per requirement
+            val newArray = arrayOfNulls<Any>(newSize + minCapacityIncrement)
+            System.arraycopy(elements, 0, newArray, 0, size)
+            elements = newArray
+        }
+        System.arraycopy(newElements, 0, elements, size, newElements.size)
+        size = newSize
+    }
+
     fun dequeue(): E {
         if (size == 0) throw QueueUnderflowException()
         val oldVal = elements[0]
         elements[0] = null
         System.arraycopy(elements, 1, elements, 0, --size)
         return oldVal as E
+    }
+
+    fun dequeue(count: Int) {
+        if (size == 0 || size < count) throw QueueUnderflowException()
+        System.arraycopy(elements, count, elements, 0, size - count)
+        size -= count
+        for (i in 0 until count) {
+            elements[size + i] = null
+        }
     }
 
     fun front() = try {
@@ -67,6 +93,8 @@ class Queue<E> {
 
 class QueueUnderflowException : RuntimeException()
 
+inline fun <reified T> queueOf(vararg elements: T) = Queue<T>(elements as Array<T>)
+
 fun main(args: Array<String>) {
     val animals = Queue<String>(10)
     System.out.println("$animals - Empty? -- ${animals.isEmpty()}")
@@ -91,4 +119,48 @@ fun main(args: Array<String>) {
     System.out.println("$animals - Empty? -- ${animals.isEmpty()}")
     animals.dequeue()
     System.out.println("$animals - Empty? -- ${animals.isEmpty()}")
+
+    println()
+    val languages = Queue(arrayOf("Kotlin", "Java"))
+    println("$languages - Empty? -- ${languages.isEmpty()}")
+    languages.enqueue("C")
+    println("$languages - Empty? -- ${languages.isEmpty()}")
+    languages.dequeue()
+    println("$languages - Empty? -- ${languages.isEmpty()}")
+    languages.dequeue()
+    println("$languages - Empty? -- ${languages.isEmpty()}")
+    languages.dequeue()
+    println("$languages - Empty? -- ${languages.isEmpty()}")
+
+    testEnqueueDequeue()
+    testQueueOf()
+}
+
+fun testEnqueueDequeue() {
+    println()
+    val numbers = Queue<Int>(10)
+    numbers.enqueueAll(Array<Int>(100) { i -> i })
+    println(numbers)
+    println()
+    numbers.enqueueAll(arrayOf(300, 400, 500))
+    println(numbers)
+    println()
+    numbers.dequeue(10)
+    println(numbers)
+    println()
+    numbers.enqueueAll(arrayOf(100, 200, 1000))
+    println(numbers)
+    println()
+    numbers.dequeue(60)
+    println(numbers)
+    println()
+}
+
+fun testQueueOf() {
+    val languages = queueOf("Kotlin", "Java")
+    println(languages)
+    languages.enqueue("C")
+    println(languages)
+    languages.dequeue()
+    println(languages)
 }
