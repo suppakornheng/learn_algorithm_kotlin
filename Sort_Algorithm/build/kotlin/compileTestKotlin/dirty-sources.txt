@@ -1,0 +1,6 @@
+C:\lean_algorithm_kotlin\Sort_Algorithm\src\test\kotlin\SelectionSort.kt
+C:\lean_algorithm_kotlin\Sort_Algorithm\src\test\kotlin\HeapSort.kt
+C:\lean_algorithm_kotlin\Sort_Algorithm\src\test\kotlin\InsertionSort.kt
+C:\lean_algorithm_kotlin\Sort_Algorithm\src\test\kotlin\MergeSort.kt
+C:\lean_algorithm_kotlin\Sort_Algorithm\src\test\kotlin\QuickSort.kt
+C:\lean_algorithm_kotlin\Sort_Algorithm\src\test\kotlin\BubbleSort.kt
